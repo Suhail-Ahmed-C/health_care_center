@@ -2,6 +2,18 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
+import Navbar  from "@/components/Navbar";
+import PharmacyCard from "@/components/PharmacyCard";
+import HomeServices from "@/components/HomeServices";
+import FreeMedicalAdvice from "@/components/Freemedicaladvice ";
+import SymptomsAndDiseases from "@/components/Symptomsanddiseases";
+import TopArticles from "@/components/Toparticles";
+import CustomerReviews from "@/components/Customerreviews";
+import WhyChooseUs from "@/components/Whychooseus";
+import DoctorCTA from "@/components/Doctorapp";
+import DownloadApp from "@/components/Downloadapp";
+import FAQ from "@/components/Faq ";
+import DoctorsByCity from '@/components/Doctorsbycity';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -31,6 +43,19 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         
         {children}
+        <Navbar />
+              <PharmacyCard />
+              <HomeServices />
+              <FreeMedicalAdvice />
+              <SymptomsAndDiseases />
+              <TopArticles />
+              <CustomerReviews />
+              <WhyChooseUs />
+              <DoctorCTA />
+              <DownloadApp />
+              <FAQ />
+              <DoctorsByCity />
+
       </body>
     </html>
   );

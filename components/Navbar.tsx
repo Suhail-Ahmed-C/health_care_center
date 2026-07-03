@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ChevronDown, Phone, MapPin, Search, X } from 'lucide-react';
+import { ChevronDown, Phone, MapPin, Search, X, Menu } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -96,6 +96,8 @@ const medicineTypes = ['Prescription Medicines', 'OTC Medicines', 'Supplements',
 
 export default function Navbar() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileDropdown, setMobileDropdown] = useState<string | null>(null);
   const router = useRouter();
 
   const [selectedCity, setSelectedCity] = useState<City>(cities[0]);
@@ -110,24 +112,17 @@ export default function Navbar() {
 
   const getCurrentCategoryItems = (): SearchItem[] => {
     switch (currentCategoryIndex) {
-      case 0:
-        return diseases;
-      case 1:
-        return doctors;
-      case 2:
-        return symptoms;
-      case 3:
-        return hospitals;
-      case 4:
-        return labTestsItems;
-      default:
-        return diseases;
+      case 0: return diseases;
+      case 1: return doctors;
+      case 2: return symptoms;
+      case 3: return hospitals;
+      case 4: return labTestsItems;
+      default: return diseases;
     }
   };
 
   useEffect(() => {
     const items = getCurrentCategoryItems();
-
     if (searchQuery.trim() === '') {
       setFilteredItems(items);
     } else {
@@ -143,21 +138,13 @@ export default function Navbar() {
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (
-        cityDropdownRef.current &&
-        !cityDropdownRef.current.contains(event.target as Node)
-      ) {
+      if (cityDropdownRef.current && !cityDropdownRef.current.contains(event.target as Node)) {
         setShowCityDropdown(false);
       }
-
-      if (
-        suggestionsRef.current &&
-        !suggestionsRef.current.contains(event.target as Node)
-      ) {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node)) {
         setShowSuggestions(false);
       }
     }
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
@@ -167,237 +154,240 @@ export default function Navbar() {
       const timer = setInterval(() => {
         setCurrentCategoryIndex((prev) => (prev + 1) % categories.length);
       }, 4000);
-
       return () => clearInterval(timer);
     }
   }, [showSuggestions, searchQuery]);
 
   const handleSearch = () => {
     if (!searchQuery.trim()) return;
-
-    router.push(
-      `/results?q=${encodeURIComponent(searchQuery)}&city=${selectedCity.name}`
-    );
+    router.push(`/results?q=${encodeURIComponent(searchQuery)}&city=${selectedCity.name}`);
   };
 
   return (
-    <nav className="w-full border-b bg-gradient-to-r from-[#0e5a5a] to-[#0e5a5a] shadow-md cursor-default">
-      <div className="max-w-7xl mx-auto px-6 py-4">
-        {/* Logo and Title */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3 cursor-pointer">
-            <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-[#0e5a5a] font-bold text-2xl shadow-lg cursor-pointer">
+    <nav className="w-full border-b bg-gradient-to-r from-[#23c2c2] to-[#c0fcfc] shadow-md cursor-default">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
+
+        {/* Top Row - Logo and Buttons */}
+        <div className="flex items-center justify-between gap-2 sm:gap-4">
+
+          {/* Logo */}
+          <div className="flex items-center gap-2 sm:gap-3 cursor-pointer shrink-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-white flex items-center justify-center text-[#0e5a5a] font-bold text-lg sm:text-xl md:text-2xl shadow-lg">
               S
             </div>
-            <h1 className="text-4xl font-bold text-white cursor-pointer">Sneha</h1>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">Sneha</h1>
           </div>
 
-          {/* Nav Links */}
-          <div className="flex flex-wrap items-center text-white">
-            {/* Find Doctors */}
-            <div
-              className="relative"
-              onMouseEnter={() => setOpenDropdown('doctors')}
-              onMouseLeave={() => setOpenDropdown(null)}
-            >
-              <button className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-500 hover:bg-opacity-20 transition font-semibold cursor-pointer">
-                Find Doctors
-                <ChevronDown
-                  size={18}
-                  className={`transition-transform pointer-events-none ${
-                    openDropdown === 'doctors' ? 'rotate-180' : ''
-                  }`}
-                />
-              </button>
+          {/* Desktop Navigation */}
+          <div className="hidden xl:flex items-center gap-1 flex-1 justify-center min-w-0">
 
-              <div
-  className={`absolute top-full left-0 mt-2 bg-white text-gray-800 rounded-lg shadow-2xl p-6 w-96 z-50 transition-all duration-300 ${
-    openDropdown === 'doctors'
-      ? 'opacity-100 visible translate-y-0'
-      : 'opacity-0 invisible -translate-y-2'
-  }`}
->
-  <h3 className="text-lg font-bold text-[#0A5C86] mb-4">
-    Find doctor by Specialty
-  </h3>
-  <div className="grid grid-cols-3 gap-1 max-h-80 overflow-y-auto">
-    {doctorSpecialties.map((specialty) => (
-      <button
-        key={specialty.name}
-        className="text-left px-3 py-2 rounded-lg hover:bg-blue-50 transition border border-gray-200 hover:border-[#0A5C86] cursor-pointer"
-      >
-        <span className="text-sm font-medium">{specialty.name}</span>
-      </button>
-    ))}
-  </div>
-</div>
+            {/* Find Doctors */}
+            <div className="relative" onMouseEnter={() => setOpenDropdown('doctors')} onMouseLeave={() => setOpenDropdown(null)}>
+              <button className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition font-semibold text-sm whitespace-nowrap cursor-pointer">
+                Find Doctors
+                <ChevronDown size={14} className={`transition-transform pointer-events-none ${openDropdown === 'doctors' ? 'rotate-180' : ''}`} />
+              </button>
+              <div className={`absolute top-full left-0 mt-2 bg-white text-gray-800 rounded-lg shadow-2xl p-4 w-80 z-50 transition-all duration-300 ${openDropdown === 'doctors' ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'}`}>
+                <h3 className="text-sm font-bold text-[#0A5C86] mb-3">Find by Specialty</h3>
+                <div className="grid grid-cols-3 gap-2 max-h-72 overflow-y-auto">
+                  {doctorSpecialties.map((specialty) => (
+                    <button key={specialty.name} className="text-left p-2 rounded-lg hover:bg-blue-50 transition border border-gray-200 hover:border-[#0A5C86] text-xs cursor-pointer">
+                      <span className="font-medium">{specialty.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
 
             {/* Hospitals */}
-            <div
-              className="relative"
-              onMouseEnter={() => setOpenDropdown('hospitals')}
-              onMouseLeave={() => setOpenDropdown(null)}
-            >
-              <button className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-500 hover:bg-opacity-20 transition font-semibold cursor-pointer">
+            <div className="relative" onMouseEnter={() => setOpenDropdown('hospitals')} onMouseLeave={() => setOpenDropdown(null)}>
+              <button className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition font-semibold text-sm whitespace-nowrap cursor-pointer">
                 Hospitals
-                <ChevronDown
-                  size={18}
-                  className={`transition-transform pointer-events-none ${
-                    openDropdown === 'hospitals' ? 'rotate-180' : ''
-                  }`}
-                />
+                <ChevronDown size={14} className={`transition-transform pointer-events-none ${openDropdown === 'hospitals' ? 'rotate-180' : ''}`} />
               </button>
-
-              <div
-                className={`absolute top-full left-0 mt-2 bg-white text-gray-800 rounded-lg shadow-2xl p-4 w-48 z-50 transition-all duration-300 ${
-                  openDropdown === 'hospitals'
-                    ? 'opacity-100 visible translate-y-0'
-                    : 'opacity-0 invisible -translate-y-2'
-                }`}
-              >
-                <h3 className="text-lg font-bold text-[#0A5C86] mb-3">Services</h3>
+              <div className={`absolute top-full left-0 mt-2 bg-white text-gray-800 rounded-lg shadow-2xl p-3 w-44 z-50 transition-all duration-300 ${openDropdown === 'hospitals' ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'}`}>
+                <h3 className="text-sm font-bold text-[#0A5C86] mb-2">Services</h3>
                 {hospitalServices.map((service) => (
-                  <button
-                    key={service}
-                    className="w-full text-left px-4 py-2 rounded-lg hover:bg-blue-50 transition font-medium text-sm cursor-pointer"
-                  >
-                    {service}
-                  </button>
+                  <button key={service} className="w-full text-left px-3 py-1.5 rounded-lg hover:bg-blue-50 transition font-medium text-xs cursor-pointer">{service}</button>
                 ))}
               </div>
             </div>
 
-            <Link
-              href="#"
-              className="px-4 py-2 rounded-lg hover:bg-gray-500 hover:bg-opacity-20 transition font-semibold cursor-pointer"
-            >
-              Surgeries
-            </Link>
+            <Link href="#" className="px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition font-semibold text-sm whitespace-nowrap cursor-pointer">Surgeries</Link>
 
             {/* Medicines */}
-            <div
-              className="relative"
-              onMouseEnter={() => setOpenDropdown('medicines')}
-              onMouseLeave={() => setOpenDropdown(null)}
-            >
-              <button className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-500 hover:bg-opacity-20 transition font-semibold cursor-pointer">
+            <div className="relative" onMouseEnter={() => setOpenDropdown('medicines')} onMouseLeave={() => setOpenDropdown(null)}>
+              <button className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition font-semibold text-sm whitespace-nowrap cursor-pointer">
                 Medicines
-                <ChevronDown
-                  size={18}
-                  className={`transition-transform pointer-events-none ${
-                    openDropdown === 'medicines' ? 'rotate-180' : ''
-                  }`}
-                />
+                <ChevronDown size={14} className={`transition-transform pointer-events-none ${openDropdown === 'medicines' ? 'rotate-180' : ''}`} />
               </button>
-
-              <div
-                className={`absolute top-full left-0 mt-2 bg-white text-gray-800 rounded-lg shadow-2xl p-4 w-48 z-50 transition-all duration-300 ${
-                  openDropdown === 'medicines'
-                    ? 'opacity-100 visible translate-y-0'
-                    : 'opacity-0 invisible -translate-y-2'
-                }`}
-              >
-                <h3 className="text-lg font-bold text-[#0A5C86] mb-3">Medicine Types</h3>
+              <div className={`absolute top-full left-0 mt-2 bg-white text-gray-800 rounded-lg shadow-2xl p-3 w-44 z-50 transition-all duration-300 ${openDropdown === 'medicines' ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'}`}>
+                <h3 className="text-sm font-bold text-[#0A5C86] mb-2">Medicine Types</h3>
                 {medicineTypes.map((type) => (
-                  <button
-                    key={type}
-                    className="w-full text-left px-4 py-2 rounded-lg hover:bg-blue-50 transition font-medium text-sm cursor-pointer"
-                  >
-                    {type}
-                  </button>
+                  <button key={type} className="w-full text-left px-3 py-1.5 rounded-lg hover:bg-blue-50 transition font-medium text-xs cursor-pointer">{type}</button>
                 ))}
               </div>
             </div>
 
             {/* Labs */}
-            <div
-              className="relative"
-              onMouseEnter={() => setOpenDropdown('labs')}
-              onMouseLeave={() => setOpenDropdown(null)}
-            >
-              <button className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-500 hover:bg-opacity-20 transition font-semibold cursor-pointer">
+            <div className="relative" onMouseEnter={() => setOpenDropdown('labs')} onMouseLeave={() => setOpenDropdown(null)}>
+              <button className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition font-semibold text-sm whitespace-nowrap cursor-pointer">
                 Labs
-                <ChevronDown
-                  size={18}
-                  className={`transition-transform pointer-events-none ${
-                    openDropdown === 'labs' ? 'rotate-180' : ''
-                  }`}
-                />
+                <ChevronDown size={14} className={`transition-transform pointer-events-none ${openDropdown === 'labs' ? 'rotate-180' : ''}`} />
               </button>
-
-              <div
-                className={`absolute top-full left-0 mt-2 bg-white text-gray-800 rounded-lg shadow-2xl p-4 w-48 z-50 transition-all duration-300 ${
-                  openDropdown === 'labs'
-                    ? 'opacity-100 visible translate-y-0'
-                    : 'opacity-0 invisible -translate-y-2'
-                }`}
-              >
-                <h3 className="text-lg font-bold text-[#0A5C86] mb-3">Lab Tests</h3>
+              <div className={`absolute top-full left-0 mt-2 bg-white text-gray-800 rounded-lg shadow-2xl p-3 w-44 z-50 transition-all duration-300 ${openDropdown === 'labs' ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'}`}>
+                <h3 className="text-sm font-bold text-[#0A5C86] mb-2">Lab Tests</h3>
                 {labTestsItems.map((test) => (
-                  <button
-                    key={test.name}
-                    className="w-full text-left px-4 py-2 rounded-lg hover:bg-blue-50 transition font-medium text-sm cursor-pointer"
-                  >
-                    {test.name}
-                  </button>
+                  <button key={test.name} className="w-full text-left px-3 py-1.5 rounded-lg hover:bg-blue-50 transition font-medium text-xs cursor-pointer">{test.name}</button>
                 ))}
               </div>
             </div>
 
-            <Link
-              href="#"
-              className="px-4 py-2 rounded-lg hover:bg-gray-500 hover:bg-opacity-20 transition font-semibold cursor-pointer"
-            >
-              Forum
-            </Link>
-
-            <Link
-              href="#"
-              className="px-4 py-2 rounded-lg hover:bg-gray-500 hover:bg-opacity-20 transition font-semibold cursor-pointer"
-            >
-              Join as Doctor
-            </Link>
+            <Link href="#" className="px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition font-semibold text-sm whitespace-nowrap cursor-pointer">Health Hub</Link>
+            <Link href="#" className="px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition font-semibold text-sm whitespace-nowrap cursor-pointer">Forum</Link>
+            <Link href="#" className="px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition font-semibold text-sm whitespace-nowrap cursor-pointer">Join as Doctor</Link>
           </div>
 
-          {/* Right Side Buttons */}
-          <div className="flex items-center gap-3">
-            <button className="bg-white text-[#0e5a5a] p-3 rounded-lg hover:bg-gray-100 transition shadow-md cursor-pointer">
-              <Phone size={22} />
+          {/* Right Side Buttons — fixed: no extra padding, consistent sizing */}
+          <div className="flex items-center gap-2 shrink-0">
+            <button className="hidden sm:flex items-center justify-center bg-white text-[#0A5C86] p-2 rounded-lg hover:bg-gray-100 transition shadow-md cursor-pointer">
+              <Phone size={18} />
             </button>
-            <button className="bg-white text-[#0e5a5a] px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition shadow-md cursor-pointer">
+            <button className="hidden md:block bg-white text-[#0A5C86] px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition shadow-md text-sm cursor-pointer whitespace-nowrap">
               Login
+            </button>
+            <button className="hidden md:block bg-white text-[#0A5C86] px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition shadow-md text-sm cursor-pointer whitespace-nowrap">
+              Register
+            </button>
+
+            {/* Hamburger */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="xl:hidden bg-white text-[#0A5C86] p-2 rounded-lg hover:bg-gray-100 transition shadow-md cursor-pointer"
+            >
+              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
         </div>
 
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="xl:hidden mt-3 sm:mt-4 bg-[#084563] rounded-lg p-3 space-y-1 max-h-96 overflow-y-auto">
+
+            {/* Find Doctors Mobile */}
+            <div>
+              <button
+                onClick={() => setMobileDropdown(mobileDropdown === 'doctors' ? null : 'doctors')}
+                className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition font-semibold text-sm text-black cursor-pointer"
+              >
+                Find Doctors
+                <ChevronDown size={16} className={`transition-transform pointer-events-none ${mobileDropdown === 'doctors' ? 'rotate-180' : ''}`} />
+              </button>
+              {mobileDropdown === 'doctors' && (
+                <div className="bg-white text-gray-800 rounded-lg mt-2 p-3 grid grid-cols-2 gap-2">
+                  {doctorSpecialties.map((specialty) => (
+                    <button key={specialty.name} className="text-left px-2 py-2 hover:bg-blue-50 rounded text-xs cursor-pointer">{specialty.name}</button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Hospitals Mobile */}
+            <div>
+              <button
+                onClick={() => setMobileDropdown(mobileDropdown === 'hospitals' ? null : 'hospitals')}
+                className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition font-semibold text-sm text-black cursor-pointer"
+              >
+                Hospitals
+                <ChevronDown size={16} className={`transition-transform pointer-events-none ${mobileDropdown === 'hospitals' ? 'rotate-180' : ''}`} />
+              </button>
+              {mobileDropdown === 'hospitals' && (
+                <div className="bg-white text-gray-800 rounded-lg mt-2 p-3 space-y-1">
+                  {hospitalServices.map((service) => (
+                    <button key={service} className="block w-full text-left px-2 py-1.5 hover:bg-blue-50 rounded text-xs cursor-pointer">{service}</button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Medicines Mobile */}
+            <div>
+              <button
+                onClick={() => setMobileDropdown(mobileDropdown === 'medicines' ? null : 'medicines')}
+                className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition font-semibold text-sm text-black cursor-pointer"
+              >
+                Medicines
+                <ChevronDown size={16} className={`transition-transform pointer-events-none ${mobileDropdown === 'medicines' ? 'rotate-180' : ''}`} />
+              </button>
+              {mobileDropdown === 'medicines' && (
+                <div className="bg-white text-gray-800 rounded-lg mt-2 p-3 space-y-1">
+                  {medicineTypes.map((type) => (
+                    <button key={type} className="block w-full text-left px-2 py-1.5 hover:bg-blue-50 rounded text-xs cursor-pointer">{type}</button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Labs Mobile */}
+            <div>
+              <button
+                onClick={() => setMobileDropdown(mobileDropdown === 'labs' ? null : 'labs')}
+                className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition font-semibold text-sm text-black cursor-pointer"
+              >
+                Labs
+                <ChevronDown size={16} className={`transition-transform pointer-events-none ${mobileDropdown === 'labs' ? 'rotate-180' : ''}`} />
+              </button>
+              {mobileDropdown === 'labs' && (
+                <div className="bg-white text-gray-800 rounded-lg mt-2 p-3 space-y-1">
+                  {labTestsItems.map((test) => (
+                    <button key={test.name} className="block w-full text-left px-2 py-1.5 hover:bg-blue-50 rounded text-xs cursor-pointer">{test.name}</button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {['Surgeries', 'Health Hub', 'Forum', 'Join as Doctor'].map((item) => (
+              <Link key={item} href="#" className="block w-full px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition font-semibold text-sm text-black cursor-pointer">
+                {item}
+              </Link>
+            ))}
+
+            <div className="flex gap-2 pt-2 border-t border-white border-opacity-20">
+              <button className="flex-1 bg-white text-[#0A5C86] p-2 rounded-lg font-semibold text-xs hover:bg-gray-100 transition flex items-center justify-center gap-1 cursor-pointer">
+                <Phone size={16} /> Call
+              </button>
+              <button className="flex-1 bg-white text-[#0A5C86] p-2 rounded-lg font-semibold text-xs hover:bg-gray-100 transition cursor-pointer">
+                Login
+              </button>
+              <button className="flex-1 bg-white text-[#0A5C86] p-2 rounded-lg font-semibold text-xs hover:bg-gray-100 transition cursor-pointer">
+                Register
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Search Section */}
-        <div className="w-full py-1">
-          <div className="max-w-3x2 mx-auto">
+        <div className="w-full py-3">
+          <div className="mx-auto">
             <div className="bg-white rounded-xl shadow-lg overflow-visible">
-              <div className="flex items-stretch">
+              <div className="flex flex-col sm:flex-row items-stretch">
+
                 {/* CITY */}
-                <div className="relative border-r border-gray-200" ref={cityDropdownRef}>
+                <div className="relative sm:border-r border-b sm:border-b-0 border-gray-200 shrink-0" ref={cityDropdownRef}>
                   <button
                     onClick={() => setShowCityDropdown(!showCityDropdown)}
-                    className="h-full px-4 py-2.5 flex items-center gap-2 cursor-pointer"
+                    className="w-full sm:w-auto h-full px-4 py-2.5 flex items-center gap-2 cursor-pointer"
                   >
                     <MapPin size={16} className="text-[#0A5C86]" />
-                    <span className="text-sm font-medium text-gray-700 whitespace-nowrap">
-                      {selectedCity.name}
-                    </span>
+                    <span className="text-sm font-medium text-gray-700 whitespace-nowrap">{selectedCity.name}</span>
                     <ChevronDown size={14} className="text-gray-400 pointer-events-none" />
                   </button>
-
                   {showCityDropdown && (
                     <div className="absolute z-50 bg-white shadow-xl w-40 rounded-b-lg overflow-hidden border border-gray-100">
                       {cities.map((city) => (
                         <button
                           key={city.code}
-                          onClick={() => {
-                            setSelectedCity(city);
-                            setShowCityDropdown(false);
-                          }}
+                          onClick={() => { setSelectedCity(city); setShowCityDropdown(false); }}
                           className="w-full px-4 py-2 text-sm hover:bg-blue-50 text-left cursor-pointer"
                         >
                           {city.name}
@@ -408,38 +398,31 @@ export default function Navbar() {
                 </div>
 
                 {/* SEARCH */}
-                <div className="relative flex-1" ref={suggestionsRef}>
+                <div className="relative flex-1 min-w-0" ref={suggestionsRef}>
                   <div className="flex items-center gap-2 px-4 py-2.5 h-full">
-                    <Search size={16} className="text-gray-400" />
+                    <Search size={16} className="text-gray-400 shrink-0" />
                     <input
                       type="text"
                       value={searchQuery}
                       onFocus={() => setShowSuggestions(true)}
-                      onChange={(e) => {
-                        setSearchQuery(e.target.value);
-                        setShowSuggestions(true);
-                      }}
+                      onChange={(e) => { setSearchQuery(e.target.value); setShowSuggestions(true); }}
                       onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                       placeholder={`Search ${categories[currentCategoryIndex].toLowerCase()}...`}
-                      className="flex-1 outline-none text-sm text-gray-700 cursor-text"
+                      className="flex-1 outline-none text-sm text-gray-700 cursor-text min-w-0"
                     />
                     {searchQuery && (
-                      <button onClick={() => setSearchQuery('')} className="cursor-pointer">
+                      <button onClick={() => setSearchQuery('')} className="cursor-pointer shrink-0">
                         <X size={16} className="text-gray-400 hover:text-gray-600" />
                       </button>
                     )}
                   </div>
-
                   {showSuggestions && (
                     <div className="absolute z-50 bg-white shadow-xl w-full max-h-64 overflow-y-auto rounded-b-lg border border-gray-100">
                       {filteredItems.length > 0 ? (
                         filteredItems.map((item, index) => (
                           <button
                             key={index}
-                            onClick={() => {
-                              setSearchQuery(item.name);
-                              setShowSuggestions(false);
-                            }}
+                            onClick={() => { setSearchQuery(item.name); setShowSuggestions(false); }}
                             className="w-full px-4 py-2 border-b hover:bg-blue-50 text-left cursor-pointer"
                           >
                             <p className="text-sm font-medium">{item.name}</p>
@@ -453,10 +436,10 @@ export default function Navbar() {
                   )}
                 </div>
 
-                {/* BUTTON */}
+                {/* SEARCH BUTTON */}
                 <button
                   onClick={handleSearch}
-                  className="bg-[#0A5C86] text-white px-6 text-sm font-semibold rounded-r-xl hover:bg-[#08465f] transition cursor-pointer"
+                  className="bg-[#0A5C86] text-white px-6 py-2.5 sm:py-0 text-sm font-semibold rounded-b-xl sm:rounded-b-none sm:rounded-r-xl hover:bg-[#08465f] transition cursor-pointer whitespace-nowrap shrink-0"
                 >
                   Search
                 </button>
@@ -464,6 +447,7 @@ export default function Navbar() {
             </div>
           </div>
         </div>
+
       </div>
     </nav>
   );
